@@ -1,59 +1,39 @@
 // ── Custom cursor ──
-const cursor = document.getElementById('cursor');
-const ring = document.getElementById('cursorRing');
+const cur = document.getElementById('cur');
+const ring = document.getElementById('cur-ring');
 let mx = 0, my = 0, rx = 0, ry = 0;
 
 document.addEventListener('mousemove', e => {
-  mx = e.clientX;
-  my = e.clientY;
-  cursor.style.left = mx + 'px';
-  cursor.style.top = my + 'px';
-});
+  mx = e.clientX; my = e.clientY;
+  cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+}, { passive: true });
 
-function animateRing() {
-  rx += (mx - rx) * 0.12;
-  ry += (my - ry) * 0.12;
+(function loop() {
+  rx += (mx - rx) * 0.13;
+  ry += (my - ry) * 0.13;
   ring.style.left = rx + 'px';
-  ring.style.top = ry + 'px';
-  requestAnimationFrame(animateRing);
-}
-animateRing();
+  ring.style.top  = ry + 'px';
+  requestAnimationFrame(loop);
+})();
 
-document.querySelectorAll('a, button, .exp-card, .project-card, .skill-group').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    ring.style.width = '60px';
-    ring.style.height = '60px';
-    ring.style.borderColor = 'rgba(0,229,255,0.8)';
-  });
-  el.addEventListener('mouseleave', () => {
-    ring.style.width = '36px';
-    ring.style.height = '36px';
-    ring.style.borderColor = 'rgba(0,229,255,0.4)';
-  });
+document.querySelectorAll('a, button, .exp-card, .project-card, .sg, .edu-card, .ach-item').forEach(el => {
+  el.addEventListener('mouseenter', () => { cur.classList.add('h'); ring.classList.add('h'); });
+  el.addEventListener('mouseleave', () => { cur.classList.remove('h'); ring.classList.remove('h'); });
 });
 
 // ── Scroll reveal ──
-const observer = new IntersectionObserver(entries => {
+const obs = new IntersectionObserver(entries => {
   entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      observer.unobserve(e.target);
-    }
+    if (e.isIntersecting) { e.target.classList.add('vis'); obs.unobserve(e.target); }
   });
-}, { threshold: 0.1 });
-
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+}, { threshold: 0.07 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
 // ── Active nav highlight ──
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav-links a');
-
+const secs = document.querySelectorAll('section[id]');
+const navAs = document.querySelectorAll('.nav-links a');
 window.addEventListener('scroll', () => {
-  let current = '';
-  sections.forEach(s => {
-    if (window.scrollY >= s.offsetTop - 120) current = s.id;
-  });
-  navLinks.forEach(a => {
-    a.style.color = a.getAttribute('href') === '#' + current ? 'var(--accent)' : '';
-  });
-});
+  let cur2 = '';
+  secs.forEach(s => { if (window.scrollY >= s.offsetTop - 100) cur2 = s.id; });
+  navAs.forEach(a => a.classList.toggle('act', a.getAttribute('href') === '#' + cur2));
+}, { passive: true });
